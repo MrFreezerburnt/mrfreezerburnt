@@ -3,6 +3,7 @@ package scripts;
 import org.powerbot.script.Condition;
 import org.powerbot.script.rt4.ClientContext;
 import org.powerbot.script.rt4.Bank.Amount;
+import org.powerbot.script.rt4.Game;
 
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
@@ -23,6 +24,8 @@ public class Bank extends Task<ClientContext> {
 
         final State state = getState();
         if (state == null) return;
+
+        Logger.getLogger("Bank.java").info(state.toString() + " detected");
 
         switch (state) {
             case CLOSE_BANK:

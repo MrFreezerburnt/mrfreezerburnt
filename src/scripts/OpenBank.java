@@ -25,6 +25,8 @@ public class OpenBank extends Task<ClientContext> {
         final State state = getState();
         if (state == null) return;
 
+        Logger.getLogger("OpenBank.java").info(state.toString() + " detected");
+
         switch (state) {
             case OPEN_BANK:
                 Condition.wait(new Callable<Boolean>() {
@@ -32,7 +34,7 @@ public class OpenBank extends Task<ClientContext> {
                     public Boolean call() throws Exception {
                         return ctx.bank.open();
                     }
-                },6, 100);
+                },100, 60);
                 break;
         }
 

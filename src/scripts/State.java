@@ -7,6 +7,6 @@ public enum State {
     CLOSE_BANK,
     OPEN_BANK,
     USE_SPELL,
-    WAIT,
+    GOTO_MAGIC_TAB,
     OUT_OF_RUNES
 }

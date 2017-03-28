@@ -8,9 +8,11 @@ import org.powerbot.script.rt4.Magic;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 
+import static org.powerbot.script.rt4.Constants.SKILLS_MAGIC;
+
 public class Tan extends Task<ClientContext> {
 
-    public Tan(ClientContext ctx) {
+    Tan(ClientContext ctx) {
         super(ctx);
     }
 
@@ -52,7 +54,12 @@ public class Tan extends Task<ClientContext> {
         final State state = getState();
         if (state == null) return;
 
+        Logger.getLogger("Tan.java").info(state.toString() + " detected");
+
         switch (state) {
+            case GOTO_MAGIC_TAB:
+                ctx.game.tab(Game.Tab.MAGIC);
+                break;
             case OUT_OF_RUNES:
                 ctx.controller.stop();
                 Condition.wait(new Callable<Boolean>() {
@@ -60,7 +67,7 @@ public class Tan extends Task<ClientContext> {
                     public Boolean call() throws Exception {
                         return ctx.controller.isStopping();
                     }
-                },6,100);
+                },6,200);
                 break;
             case USE_SPELL:
                 Condition.wait(new Callable<Boolean>() {
@@ -68,18 +75,9 @@ public class Tan extends Task<ClientContext> {
                     public Boolean call() throws Exception {
                         return ctx.magic.cast(LunarSpell.TAN_LEATHER);
                     }
-                },60,10);
+                },300, 2);
                 LunarTanner.hidesTanned += 5;
                 break;
-            case WAIT:
-                Condition.wait(new Callable<Boolean>() {
-                    @Override
-                    public Boolean call() throws Exception {
-                        return ctx.players.local().animation() != 712;
-                    }
-                }, 100, 6);
-                break;
-
         }
     }
 
@@ -98,12 +96,12 @@ public class Tan extends Task<ClientContext> {
         int nats = ctx.inventory.select().id(561).peek().stackSize();
         int asts = ctx.inventory.select().id(9075).peek().stackSize();
 
-        if (nats < 2 || asts < 1)
+        if (!ctx.game.tab(Game.Tab.MAGIC))
+            return State.GOTO_MAGIC_TAB;
+        if (nats < 2 || asts < 1 || !ctx.magic.ready(LunarSpell.TAN_LEATHER))
             return State.OUT_OF_RUNES;
         if (ctx.players.local().animation() != 712)
             return State.USE_SPELL;
-        if (ctx.players.local().animation() == 712)
-            return State.WAIT;
 
         return null;
     }
